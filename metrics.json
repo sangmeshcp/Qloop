@@ -73,6 +73,78 @@
       "mapped": true
     },
     {
+      "circuit": "mermin-bell",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 3,
+      "two_qubit_gates": 2,
+      "mapped": true
+    },
+    {
+      "circuit": "mermin-bell",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 5,
+      "two_qubit_gates": 2,
+      "mapped": true
+    },
+    {
+      "circuit": "mermin-bell",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 4,
+      "two_qubit_gates": 2,
+      "mapped": true
+    },
+    {
+      "circuit": "qft",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 7,
+      "two_qubit_gates": 0,
+      "mapped": true
+    },
+    {
+      "circuit": "qft",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 48,
+      "two_qubit_gates": 19,
+      "mapped": true
+    },
+    {
+      "circuit": "qft",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 21,
+      "two_qubit_gates": 12,
+      "mapped": true
+    },
+    {
+      "circuit": "tfim-trotter",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 31,
+      "two_qubit_gates": 24,
+      "mapped": true
+    },
+    {
+      "circuit": "tfim-trotter",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 57,
+      "two_qubit_gates": 24,
+      "mapped": true
+    },
+    {
+      "circuit": "tfim-trotter",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 39,
+      "two_qubit_gates": 24,
+      "mapped": true
+    },
+    {
       "circuit": "vqe",
       "target": "sim-ideal",
       "stage": "transpile",
