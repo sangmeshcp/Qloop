@@ -1,0 +1,34 @@
+targets:
+  - name: sim-ideal
+    type: statevector
+
+  - name: sim-noisy-heavyhex
+    type: noisy
+    coupling: heavy-hex
+    basis_gates: [rz, sx, x, cx]
+    depolarizing_1q: 0.001
+    depolarizing_2q: 0.01
+    # Budget knob: transpiled circuit must stay within these limits.
+    # Tighten to catch circuits that over-decompose for this gate set.
+    # Note: 3-qubit Grover decomposes Toffoli into ~19 CX gates on heavy-hex,
+    # requiring depth ~70; this budget accommodates that with headroom.
+    budget:
+      depth: 120
+      two_qubit_gates: 30
+
+  - name: sim-noisy-alltoall
+    type: noisy
+    coupling: all-to-all
+    # Native basis for trapped-ion simulation.
+    # Real hardware uses RXX (Mølmer-Sørensen) but Qiskit's BasisTranslator
+    # requires provider-specific plugins to decompose into RXX without custom
+    # equivalences; CX is isomorphic and natively supported.  The key topological
+    # advantage — no SWAP routing overhead — is captured by coupling_map=None.
+    basis_gates: [cx, ry, rz]
+    depolarizing_1q: 0.0005
+    depolarizing_2q: 0.005
+    # Budget knob: trapped-ion all-to-all topology has no SWAP overhead,
+    # so we can afford a tighter depth limit than heavy-hex.
+    budget:
+      depth: 40
+      two_qubit_gates: 15

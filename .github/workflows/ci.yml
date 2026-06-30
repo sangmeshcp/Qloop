@@ -1,0 +1,103 @@
+name: Qloop CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Nightly at 02:00 UTC (for hardware smoke job)
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+    # Allow manual trigger from GitHub Actions UI
+
+jobs:
+  # ── Stages 1–5: lint, exact, properties, transpile matrix, noisy ─────────────
+  pr-pipeline:
+    name: PR Pipeline (Stages 1–5)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Stage 1: Lint & static
+      - name: Stage 1 — Lint (ruff)
+        run: ruff check .
+
+      # Stage 2: Exact verification
+      - name: Stage 2 — Exact tests
+        run: pytest tests/test_exact/ -v
+
+      # Stage 3: Property tests
+      - name: Stage 3 — Property tests (hypothesis)
+        run: pytest tests/test_properties/ -v
+
+      # Stage 4: Transpilation matrix (the "build")
+      - name: Stage 4 — Transpilation matrix
+        run: pytest tests/test_transpile/ -v -s
+
+      # Stage 5: Noisy simulation
+      - name: Stage 5 — Noisy simulation tests
+        run: pytest tests/test_noisy/ -v
+
+      # Emit transpile metrics as a CI artifact for observability
+      - name: Collect transpile metrics
+        if: always()
+        run: |
+          pytest tests/test_transpile/ -v -s 2>&1 | tee transpile_metrics.txt || true
+
+      - name: Upload transpile metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: transpile-metrics
+          path: transpile_metrics.txt
+          retention-days: 30
+
+  # ── Stage 6: Hardware smoke — gated, nightly, never blocks merges ────────────
+  nightly-hardware:
+    name: Stage 6 — Hardware Smoke (nightly, allowed to fail)
+    runs-on: ubuntu-latest
+    # Only run on schedule or manual dispatch — never on PRs or pushes
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    # This job MUST NOT block merges. Real hardware calls are flaky by nature.
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Stage 6 — Hardware stub smoke test
+        run: |
+          python - <<'EOF'
+          import yaml, sys
+          from pipeline.run import submit_hardware
+          from circuits.bell import bell_circuit
+
+          with open("backends/targets.yaml") as f:
+              targets = yaml.safe_load(f)["targets"]
+
+          for target in targets:
+              try:
+                  submit_hardware(bell_circuit(), target)
+                  print(f"ERROR: {target['name']} should have raised NotImplementedError")
+                  sys.exit(1)
+              except NotImplementedError as e:
+                  print(f"OK  {target['name']}: stub raised correctly — {e}")
+          print("All hardware stubs confirmed.")
+          EOF
