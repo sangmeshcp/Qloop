@@ -1,0 +1,82 @@
+"""
+Reusable Invariant library.
+
+Each factory function returns an Invariant(name, check, message).
+These are composed in CircuitSpec.invariants() / invariants_for().
+"""
+
+from __future__ import annotations
+
+import numpy as np
+from qiskit import QuantumCircuit
+from qiskit.quantum_info import Operator, Statevector
+
+from qloop.core.spec import Invariant
+
+
+def normalized(atol: float = 1e-9) -> Invariant:
+    """Statevector probabilities sum to 1."""
+
+    def check(circuit: QuantumCircuit, sv: Statevector) -> bool:
+        return abs(np.sum(sv.probabilities()) - 1.0) < atol
+
+    return Invariant(
+        name="normalized",
+        check=check,
+        message=f"Probabilities must sum to 1 (atol={atol})",
+    )
+
+
+def unitary(atol: float = 1e-9) -> Invariant:
+    """Circuit implements a unitary transformation (U†U = I)."""
+
+    def check(circuit: QuantumCircuit, sv: Statevector) -> bool:
+        u = Operator(circuit).data
+        return np.allclose(u.conj().T @ u, np.eye(len(u)), atol=atol)
+
+    return Invariant(
+        name="unitary",
+        check=check,
+        message="U†U must equal identity",
+    )
+
+
+def marked_dominant(marked: str, threshold: float = 0.5) -> Invariant:
+    """Marked state has probability above threshold (for 2-qubit Grover)."""
+
+    def check(circuit: QuantumCircuit, sv: Statevector) -> bool:
+        return sv.probabilities_dict().get(marked, 0.0) > threshold
+
+    return Invariant(
+        name=f"marked_dominant[{marked}]",
+        check=check,
+        message=f"p('{marked}') must exceed {threshold}",
+    )
+
+
+def above_uniform(n_qubits: int, marked: str) -> Invariant:
+    """Marked state has probability above the uniform baseline 1/2^n."""
+    uniform = 1.0 / (2**n_qubits)
+
+    def check(circuit: QuantumCircuit, sv: Statevector) -> bool:
+        return sv.probabilities_dict().get(marked, 0.0) > uniform
+
+    return Invariant(
+        name=f"above_uniform[{marked}]",
+        check=check,
+        message=f"p('{marked}') must exceed uniform {uniform:.4f}",
+    )
+
+
+def hermitian_expectation(observable, expected: float, atol: float = 0.1) -> Invariant:
+    """⟨ψ|H|ψ⟩ is within atol of expected (for variational circuits)."""
+
+    def check(circuit: QuantumCircuit, sv: Statevector) -> bool:
+        val = float(sv.expectation_value(observable).real)
+        return abs(val - expected) < atol
+
+    return Invariant(
+        name="hermitian_expectation",
+        check=check,
+        message=f"⟨H⟩ must be within {atol} of {expected}",
+    )
