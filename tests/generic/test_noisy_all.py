@@ -49,9 +49,8 @@ def test_noisy_distribution(spec, target):
         )
 
     noise_model = build_noise_model(target)
-    coupling_map = coupling_map_for(target)
-
     qc = _add_measurements(spec.build())
+    coupling_map = coupling_map_for(target, n_qubits=qc.num_qubits)
     transpiled, _ = transpile_for_target(qc, target, coupling_map=coupling_map)
 
     counts = run_sampled(

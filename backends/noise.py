@@ -13,26 +13,42 @@ _HEAVY_HEX_EDGES = [(0, 1), (1, 2), (2, 3), (3, 4)]
 _ALL_TO_ALL_EDGES = [(i, j) for i in range(4) for j in range(4) if i != j]
 
 
-def coupling_map_for(target: dict) -> CouplingMap | None:
+def _heavy_hex_distance_for(n_qubits: int) -> int:
+    """Smallest odd d such that the heavy-hex graph has >= n_qubits nodes."""
+    d = 3
+    while (5 * d**2 - 2 * d - 1) // 2 < n_qubits:
+        d += 2
+    return d
+
+
+def coupling_map_for(target: dict, n_qubits: int | None = None) -> CouplingMap | None:
     """
     Return a CouplingMap for the named topology, or None for all-to-all.
 
-    For all-to-all (trapped-ion-like), we return a concrete 4-qubit fully
-    connected map rather than None.  Qiskit 2.x's transpiler can behave
-    unpredictably when coupling_map=None; an explicit dense map ensures correct
+    For all-to-all (trapped-ion-like), we return a concrete fully connected
+    map rather than None.  Qiskit 2.x's transpiler can behave unpredictably
+    when coupling_map=None; an explicit dense map ensures correct
     routing-pass behaviour while preserving the "no SWAP overhead" property.
 
     Args:
         target: Parsed target dict from targets.yaml.
+        n_qubits: If given, scale the generated map to fit at least this many
+            qubits (heavy-hex via Qiskit's lattice generator, all-to-all via a
+            complete graph). If omitted, the original small fixed-size maps
+            are returned for backward compatibility with the seed circuits.
 
     Returns:
         CouplingMap instance for both heavy-hex and all-to-all topologies.
     """
     coupling = target.get("coupling", "")
+    if n_qubits is None:
+        if coupling == "heavy-hex":
+            return CouplingMap(_HEAVY_HEX_EDGES)
+        return CouplingMap(_ALL_TO_ALL_EDGES)
+
     if coupling == "heavy-hex":
-        return CouplingMap(_HEAVY_HEX_EDGES)
-    # all-to-all: explicit 4-qubit fully-connected map
-    return CouplingMap(_ALL_TO_ALL_EDGES)
+        return CouplingMap.from_heavy_hex(_heavy_hex_distance_for(n_qubits))
+    return CouplingMap.from_full(n_qubits)
 
 
 def build_noise_model(target: dict) -> NoiseModel:

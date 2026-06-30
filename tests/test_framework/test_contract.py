@@ -88,3 +88,33 @@ class TestCircuitContract:
             assert all(0.0 <= v <= 1.0 for v in ed.values()), (
                 f"{spec.name}: expected_distribution values must be probabilities"
             )
+
+    def test_stim_param_space_returns_param_space(self, spec: CircuitSpec):
+        ps = spec.stim_param_space()
+        assert isinstance(ps, ParamSpace), (
+            f"{spec.name}: stim_param_space() must return ParamSpace, got {type(ps)}"
+        )
+
+    def test_stim_program_is_none_or_stim_circuit(self, spec: CircuitSpec):
+        import stim
+
+        ps = spec.stim_param_space()
+        prog = spec.stim_program() if ps.is_empty() else None
+        if ps.is_empty():
+            assert prog is None or isinstance(prog, stim.Circuit), (
+                f"{spec.name}: stim_program() must return stim.Circuit or None"
+            )
+
+    def test_large_circuit_declares_stim_or_skips_statevector(self, spec: CircuitSpec):
+        """Circuits too large for Statevector must offer a Stim path (or decline both)."""
+        from qloop.core.spec import MAX_STATEVECTOR_QUBITS
+
+        if spec.n_qubits > MAX_STATEVECTOR_QUBITS:
+            assert spec.reference_state() is None, (
+                f"{spec.name}: n_qubits={spec.n_qubits} is too large for "
+                "Statevector; reference_state() must return None"
+            )
+            assert spec.expected_distribution() is None, (
+                f"{spec.name}: n_qubits={spec.n_qubits} is too large for "
+                "Statevector/Aer sampling; expected_distribution() must return None"
+            )

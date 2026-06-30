@@ -16,6 +16,7 @@ import pytest
 from qiskit.quantum_info import Statevector
 
 from qloop.core.registry import registry
+from qloop.core.spec import MAX_STATEVECTOR_QUBITS
 
 _ALL = registry.all()
 
@@ -25,6 +26,11 @@ def test_exact_state(spec):
     ref = spec.reference_state()
     if ref is None:
         pytest.skip(f"{spec.name}: no reference_state defined")
+    if spec.n_qubits > MAX_STATEVECTOR_QUBITS:
+        pytest.skip(
+            f"{spec.name}: n_qubits={spec.n_qubits} exceeds MAX_STATEVECTOR_QUBITS"
+            f"={MAX_STATEVECTOR_QUBITS}"
+        )
 
     qc = spec.build()
     sv = Statevector(qc)
