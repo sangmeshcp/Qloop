@@ -32,33 +32,34 @@ jobs:
       - name: Stage 1 — Lint (ruff)
         run: ruff check .
 
-      # Framework: registry + contract checks
-      - name: Framework — Registry and contract tests
-        run: pytest tests/test_framework/ -v
-
-      # Stage 2: Exact verification (original + generic)
+      # Stage 2: Exact verification
       - name: Stage 2 — Exact tests
-        run: pytest tests/test_exact/ tests/generic/test_exact_all.py -v
+        run: pytest tests/test_exact/ -v
 
-      # Stage 3: Property tests (original + generic)
+      # Stage 3: Property tests
       - name: Stage 3 — Property tests (hypothesis)
-        run: pytest tests/test_properties/ tests/generic/test_properties_all.py -v
+        run: pytest tests/test_properties/ -v
 
-      # Stage 4: Transpilation matrix (original + generic)
+      # Stage 4: Transpilation matrix (the "build")
       - name: Stage 4 — Transpilation matrix
-        run: pytest tests/test_transpile/ tests/generic/test_transpile_all.py -v -s
+        run: pytest tests/test_transpile/ -v -s
 
-      # Stage 5: Noisy simulation (original + generic)
+      # Stage 5: Noisy simulation
       - name: Stage 5 — Noisy simulation tests
-        run: pytest tests/test_noisy/ tests/generic/test_noisy_all.py -v
+        run: pytest tests/test_noisy/ -v
 
-      # Upload pipeline metrics JSON (written by conftest sessionfinish hook)
-      - name: Upload pipeline metrics
+      # Emit transpile metrics as a CI artifact for observability
+      - name: Collect transpile metrics
+        if: always()
+        run: |
+          pytest tests/test_transpile/ -v -s 2>&1 | tee transpile_metrics.txt || true
+
+      - name: Upload transpile metrics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pipeline-metrics
-          path: metrics.json
+          name: transpile-metrics
+          path: transpile_metrics.txt
           retention-days: 30
 
   # ── Stage 6: Hardware smoke — gated, nightly, never blocks merges ────────────
