@@ -1,0 +1,100 @@
+{
+  "entries": [
+    {
+      "circuit": "bell",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 2,
+      "two_qubit_gates": 1,
+      "mapped": true
+    },
+    {
+      "circuit": "bell",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 4,
+      "two_qubit_gates": 1,
+      "mapped": true
+    },
+    {
+      "circuit": "bell",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 3,
+      "two_qubit_gates": 1,
+      "mapped": true
+    },
+    {
+      "circuit": "ghz",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 3,
+      "two_qubit_gates": 2,
+      "mapped": true
+    },
+    {
+      "circuit": "ghz",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 5,
+      "two_qubit_gates": 2,
+      "mapped": true
+    },
+    {
+      "circuit": "ghz",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 4,
+      "two_qubit_gates": 2,
+      "mapped": true
+    },
+    {
+      "circuit": "grover",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 5,
+      "two_qubit_gates": 2,
+      "mapped": true
+    },
+    {
+      "circuit": "grover",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 11,
+      "two_qubit_gates": 2,
+      "mapped": true
+    },
+    {
+      "circuit": "grover",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 11,
+      "two_qubit_gates": 2,
+      "mapped": true
+    },
+    {
+      "circuit": "vqe",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 1,
+      "two_qubit_gates": 1,
+      "mapped": true
+    },
+    {
+      "circuit": "vqe",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 7,
+      "two_qubit_gates": 1,
+      "mapped": true
+    },
+    {
+      "circuit": "vqe",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 1,
+      "two_qubit_gates": 1,
+      "mapped": true
+    }
+  ]
+}
