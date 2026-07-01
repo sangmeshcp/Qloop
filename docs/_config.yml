@@ -1,0 +1,7 @@
+title: Qloop
+description: >-
+  A quantum-circuit SDLC framework on classical simulators — a plugin
+  registry, six pipeline stages, and a 17-circuit verification corpus.
+theme: jekyll-theme-cayman
+show_downloads: false
+markdown: kramdown

@@ -4,7 +4,9 @@ A quantum-circuit SDLC framework on classical simulators. Six pipeline stages, a
 
 **Stack:** Qiskit 2.4 + Qiskit Aer 0.17 · Stim · Python 3.11 · pytest + hypothesis · GitHub Actions
 
-All library code lives under `qloop/` — circuits, backends, pipeline helpers, and the plugin framework itself are a single package. Any circuit dropped as a single file in `qloop/circuits/` is automatically discovered and covered by all six pipeline stages. See [docs/ADDING_A_CIRCUIT.md](docs/ADDING_A_CIRCUIT.md).
+All library code lives under `qloop/` — circuits, backends, pipeline helpers, and the plugin framework itself are a single package. Any circuit dropped as a single file in `qloop/circuits/` is automatically discovered and covered by all six pipeline stages. See [docs/adding-a-circuit.md](docs/adding-a-circuit.md).
+
+**Full documentation:** [docs/index.md](docs/index.md) — architecture, installation, usage, testing, extending the framework, and the full circuit-corpus reference. Also publishable as a GitHub Pages site (enable in repo Settings → Pages → Deploy from branch → `main` / `/docs`).
 
 ---
 
@@ -41,7 +43,7 @@ Two circuits are worth calling out because their *measured* result isn't the nai
 - **`ghz` vs `ghz-tree`** (same GHZ state, ladder vs log-depth-tree construction, same qubit count): the tree has less than half the ladder's logical depth, but costs *more* two-qubit gates once transpiled onto heavy-hex, because its long-range CNOTs need SWAP routing that the ladder's already-local CNOTs don't. Logical depth and post-transpile hardware cost are not the same thing — which is the entire reason Stage 4 exists.
 - **`bb-code-72`/`bb-code-144`**: an initial 6-tick CNOT schedule that was conflict-free by simple qubit-reuse counting turned out, when actually simulated, to produce non-deterministic syndromes. Conflict-freedom is necessary but not sufficient for circuit correctness — caught only by running the circuit, not by inspecting the schedule.
 
-Every paper-derived circuit's docstring states plainly which claims were independently verified (via a from-scratch cross-check — different code, same math, checked to agree) versus which parts of the source paper were deliberately not reproduced because they couldn't be verified with confidence. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full design rationale and [docs/ADDING_A_CIRCUIT.md](docs/ADDING_A_CIRCUIT.md) to add your own.
+Every paper-derived circuit's docstring states plainly which claims were independently verified (via a from-scratch cross-check — different code, same math, checked to agree) versus which parts of the source paper were deliberately not reproduced because they couldn't be verified with confidence. See [docs/architecture.md](docs/architecture.md) for the full design rationale and [docs/adding-a-circuit.md](docs/adding-a-circuit.md) to add your own.
 
 ---
 
@@ -137,7 +139,7 @@ Treat sim-green as a necessary but not sufficient condition for hardware success
 qloop/
   core/           CircuitSpec contract, registry, invariants, param strategies
   circuits/       17 plugin modules (drop new ones here — see the Circuit
-                  Corpus table above and docs/ADDING_A_CIRCUIT.md).
+                  Corpus table above and docs/adding-a-circuit.md).
                   _qaoa_common.py and _bb_code_common.py are shared helpers,
                   not circuits — the registry skips modules with no
                   concrete CircuitSpec subclass.
@@ -145,7 +147,9 @@ qloop/
   pipeline/       transpile + run helpers + hardware stub + metrics collector
 
 templates/        circuit_template.py — copy-me starter for new plugins
-docs/             ARCHITECTURE.md, ADDING_A_CIRCUIT.md — see docs/README.md
+docs/             Full onboarding site — start at docs/index.md, or enable
+                  GitHub Pages (Settings -> Pages -> Deploy from branch,
+                  main / docs) to browse it rendered
 
 tests/
   test_framework/   Registry unit tests + contract tests (all specs)
