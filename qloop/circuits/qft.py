@@ -1,12 +1,27 @@
 """
 Quantum Fourier Transform — standard benchmark (Tier 0 seed circuit).
 
-Exact oracle via round-trip identity: QFT followed by inverse-QFT must
-reconstruct the input exactly (up to global phase), since QFT is unitary
-and its inverse is its conjugate transpose by construction.
-
 No external arXiv source — textbook construction (Nielsen & Chuang Ch. 5).
-Differential-tested against qiskit.circuit.library.QFT.
+build() uses Qiskit's own QFTGate directly (not a from-scratch
+reimplementation), so there is no independent "differential test" against
+it — an earlier version of this docstring claimed one existed; it did not,
+and has been corrected.
+
+Two independent exact oracles, both checked as invariants:
+  1. Round-trip identity: QFT composed with its own inverse must
+     reconstruct |0...0> exactly (unitary by construction).
+  2. Add-1-in-Fourier-basis: QFT, a constant-1 phase ramp, then inverse
+     QFT must map every computational basis state |x> to |x+1 mod 2^n>
+     exactly (the Draper adder for a classical constant). The phase ramp
+     angle applied to qubit k, given QFTGate's actual matrix convention
+     (verified directly via qiskit.quantum_info.Operator against the
+     standard QFT|x> = (1/sqrt(N)) sum_y e^{2*pi*i*x*y/N}|y> definition
+     before relying on it) is 2*pi/2^(n-k), not the more commonly quoted
+     2*pi/2^(k+1) — that formula assumes a big-endian qubit convention,
+     while Qiskit is little-endian (qubit 0 = least significant); getting
+     this wrong was the first thing tried here and gave a uniformly wrong
+     answer for every input, not a subtle numerical error, so it was easy
+     to catch by checking all 2^n inputs before trusting the construction.
 """
 
 from __future__ import annotations
@@ -41,7 +56,10 @@ class QFTSpec(CircuitSpec):
         return [normalized(), unitary()]
 
     def invariants_for(self, n: int = 4, **params):
-        return self.invariants() + [self._round_trip_identity(n)]
+        return self.invariants() + [
+            self._round_trip_identity(n),
+            self._add_one_in_fourier_basis(n),
+        ]
 
     @staticmethod
     def _round_trip_identity(n: int):
@@ -60,6 +78,35 @@ class QFTSpec(CircuitSpec):
             name="qft_round_trip_identity",
             check=check,
             message="QFT composed with its inverse must reconstruct |0...0>",
+        )
+
+    @staticmethod
+    def _add_one_in_fourier_basis(n: int):
+        from qloop.core.spec import Invariant
+
+        def check(circuit, sv):
+            qft = QuantumCircuit(n)
+            qft.append(QFTGate(n), range(n))
+            qft = qft.decompose()
+            for x in range(2**n):
+                prep = QuantumCircuit(n)
+                for q in range(n):
+                    if (x >> q) & 1:
+                        prep.x(q)
+                full = prep.compose(qft)
+                for k in range(n):
+                    full.p(2 * np.pi / (2 ** (n - k)), k)
+                full = full.compose(qft.inverse())
+                out = Statevector(full)
+                expected_idx = (x + 1) % (2**n)
+                if abs(out.data[expected_idx] - 1.0) > 1e-9:
+                    return False
+            return True
+
+        return Invariant(
+            name="add_one_in_fourier_basis",
+            check=check,
+            message="QFT + constant-1 phase ramp + inverse-QFT must map every |x> to |x+1 mod 2^n>",
         )
 
     def budget(self) -> Budget:

@@ -4,7 +4,9 @@ A quantum-circuit SDLC framework on classical simulators. Six pipeline stages, a
 
 **Stack:** Qiskit 2.4 + Qiskit Aer 0.17 · Stim · Python 3.11 · pytest + hypothesis · GitHub Actions
 
-All library code lives under `qloop/` — circuits, backends, pipeline helpers, and the plugin framework itself are a single package. Any circuit dropped as a single file in `qloop/circuits/` is automatically discovered and covered by all six pipeline stages. See [docs/ADDING_A_CIRCUIT.md](docs/ADDING_A_CIRCUIT.md).
+All library code lives under `qloop/` — circuits, backends, pipeline helpers, and the plugin framework itself are a single package. Any circuit dropped as a single file in `qloop/circuits/` is automatically discovered and covered by all six pipeline stages. See [docs/adding-a-circuit.md](docs/adding-a-circuit.md).
+
+**Full documentation:** [docs/index.md](docs/index.md) — architecture, installation, usage, testing, extending the framework, and the full circuit-corpus reference. Also publishable as a GitHub Pages site (enable in repo Settings → Pages → Deploy from branch → `main` / `/docs`).
 
 ---
 
@@ -20,6 +22,28 @@ All library code lives under `qloop/` — circuits, backends, pipeline helpers, 
 | 6 | **Hardware smoke** — async, gated, stubbed. Never blocks merges. | CI `nightly-hardware` job |
 
 Stages 1–5 gate every PR. Stage 6 runs nightly (or on-demand via `workflow_dispatch`) and is marked `continue-on-error: true`.
+
+---
+
+## Circuit Corpus
+
+17 circuits registered under `qloop/circuits/`, added in tiers that progressively stress different pipeline stages. Every circuit is auto-discovered — the tier structure below is a narrative for humans, not something the pipeline knows about.
+
+| Tier | Circuits | What it stresses |
+|------|----------|-------------------|
+| 0 — seed benchmarks | `ghz`, `ghz-tree`, `qft`, `tfim-trotter`, `mermin-bell` | Airtight closed-form oracles; validates all six stages end to end |
+| 1 — Clifford QEC | `bb-code-72` | 144-qubit circuit, verified via Stim instead of statevector; heavy-hex vs all-to-all transpile blowup |
+| 2 — non-Clifford exact oracles | `color-832-ccz`, `dicke`, `gqsp` | Exact statevector/amplitude targets derived and verified from scratch (not memorized formulas) |
+| 3 — topology + statistics | `qaoa-maxcut`, `qaoa-ring`, `quantum-volume` | Same ansatz, different graph locality; the canonical noisy-tier statistical benchmark |
+| 4 — hard tier | `bb-code-144`, `magic-cultivation` | 288-qubit Stim-only circuit; postselected/conditional statistics |
+| (base) | `bell`, `grover`, `vqe` | The original pre-framework circuit set |
+
+Two circuits are worth calling out because their *measured* result isn't the naively expected one:
+
+- **`ghz` vs `ghz-tree`** (same GHZ state, ladder vs log-depth-tree construction, same qubit count): the tree has less than half the ladder's logical depth, but costs *more* two-qubit gates once transpiled onto heavy-hex, because its long-range CNOTs need SWAP routing that the ladder's already-local CNOTs don't. Logical depth and post-transpile hardware cost are not the same thing — which is the entire reason Stage 4 exists.
+- **`bb-code-72`/`bb-code-144`**: an initial 6-tick CNOT schedule that was conflict-free by simple qubit-reuse counting turned out, when actually simulated, to produce non-deterministic syndromes. Conflict-freedom is necessary but not sufficient for circuit correctness — caught only by running the circuit, not by inspecting the schedule.
+
+Every paper-derived circuit's docstring states plainly which claims were independently verified (via a from-scratch cross-check — different code, same math, checked to agree) versus which parts of the source paper were deliberately not reproduced because they couldn't be verified with confidence. See [docs/architecture.md](docs/architecture.md) for the full design rationale and [docs/adding-a-circuit.md](docs/adding-a-circuit.md) to add your own.
 
 ---
 
@@ -50,14 +74,13 @@ If a circuit exceeds the budget, `BudgetExceeded` is raised and the test fails �
 
 | Property | Heavy-hex (superconducting) | All-to-all (trapped ion) |
 |----------|-----------------------------|--------------------------|
-| Connectivity | Sparse, linear-ish coupling | Any qubit can directly interact |
-| Native 2Q gate | `cx` | `rxx` |
+| Connectivity | Sparse, scales with circuit size (`CouplingMap.from_heavy_hex`) | Fully connected, scales with circuit size (`CouplingMap.from_full`) |
+| Basis gates | `rz, sx, x, cx` | `cx, ry, rz` (see targets.yaml for why not native `rxx`) |
 | SWAP overhead | High — routing adds SWAPs | None — no routing needed |
 | 2Q error rate | ~1% | ~0.5% |
-| Depth budget | 60 (more slack for SWAPs) | 40 (tight; no SWAP waste) |
-| Speed | GHz clock, fast per gate | Slower per gate, fewer gates needed |
+| Legacy seed-circuit budget | depth 120, 2q 30 | depth 40, 2q 15 |
 
-The `sim-noisy-heavyhex` target approximates IBM-style superconducting qubits. The `sim-noisy-alltoall` target approximates trapped-ion processors like IonQ or Quantinuum.
+Each `CircuitSpec` declares its own `Budget()` (see the Circuit Corpus section above) with separate limits for heavy-hex (`depth_limited`/`two_qubit_gates_limited`) vs. all other targets — the numbers above are only the legacy fixed budget still used by the original `tests/test_transpile/test_matrix.py` seed-circuit tests. The `sim-noisy-heavyhex` target approximates IBM-style superconducting qubits; `sim-noisy-alltoall` approximates trapped-ion processors like IonQ or Quantinuum.
 
 ---
 
@@ -115,13 +138,18 @@ Treat sim-green as a necessary but not sufficient condition for hardware success
 ```
 qloop/
   core/           CircuitSpec contract, registry, invariants, param strategies
-  circuits/       Plugin modules: bell, grover, vqe, ghz, qft, tfim_trotter,
-                  mermin_bell, bb_code_72 (drop new ones here)
+  circuits/       17 plugin modules (drop new ones here — see the Circuit
+                  Corpus table above and docs/adding-a-circuit.md).
+                  _qaoa_common.py and _bb_code_common.py are shared helpers,
+                  not circuits — the registry skips modules with no
+                  concrete CircuitSpec subclass.
   backends/       targets.yaml (topology/noise config) + noise model builder
   pipeline/       transpile + run helpers + hardware stub + metrics collector
 
 templates/        circuit_template.py — copy-me starter for new plugins
-docs/             ADDING_A_CIRCUIT.md — authoring guide
+docs/             Full onboarding site — start at docs/index.md, or enable
+                  GitHub Pages (Settings -> Pages -> Deploy from branch,
+                  main / docs) to browse it rendered
 
 tests/
   test_framework/   Registry unit tests + contract tests (all specs)

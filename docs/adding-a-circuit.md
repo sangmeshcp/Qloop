@@ -83,6 +83,21 @@ def expected_distribution(self, **params) -> dict[str, float]:
     return {"00": 0.5, "11": 0.5}
 ```
 
+### `stim_program(**params) → stim.Circuit | None`, `stim_param_space() → ParamSpace`
+Enables **Stage 3b**, the Clifford/Stim tier — for Clifford circuits too large for statevector simulation (`n_qubits > MAX_STATEVECTOR_QUBITS`, currently 20). Return a `stim.Circuit` with `DETECTOR` instructions; the generic test asserts detectors are quiescent absent an injected error and fire when one is injected (by convention, sweep an `error_qubit` parameter where `-1` means "no error"). `stim_param_space()` is independent from `param_space()` — they drive different sweeps (Stim error injection vs. statevector-based Hypothesis fuzzing).
+
+```python
+def stim_program(self, error_qubit: int = -1, **params):
+    circuit = stim.Circuit()
+    # ... build a 2-round syndrome-extraction circuit with DETECTOR instructions
+    return circuit
+
+def stim_param_space(self) -> ParamSpace:
+    return ParamSpace(error_qubit=IntDomain(-1, self.n_qubits - 1))
+```
+
+If your circuit is small enough for statevector simulation, you don't need this — `reference_state()` and `invariants()` are simpler and sufficient. This tier exists specifically for the handful of circuits (`bb-code-72`, `bb-code-144`) at 144+ qubits.
+
 ---
 
 ## Budget tuning
@@ -107,16 +122,18 @@ If you omit `depth_limited`, the `depth` value is used for all targets. Tighten 
 `qloop/circuits/ghz.py` is the canonical example:
 
 - Has `reference_state` → Stage 2 runs.
-- Has `invariants` → Stage 3 runs.
+- Has `invariants_for` (plus `param_space` sweeping `n`) → Stage 3 runs, fuzzed.
 - Has `budget` → Stage 4 runs.
 - **No `expected_distribution`** → Stage 5 produces a visible skip.
 
-To re-enable Stage 5 for GHZ, add:
+To re-enable Stage 5 for GHZ at its default n=12, add:
 
 ```python
-def expected_distribution(self, **params) -> dict[str, float]:
-    return {"000": 0.5, "111": 0.5}
+def expected_distribution(self, n: int = DEFAULT_N, **params) -> dict[str, float]:
+    return {"0" * n: 0.5, "1" * n: 0.5}
 ```
+
+See also `qloop/circuits/ghz_tree.py` — same target state, a different (log-depth) construction, registered as a *separate* circuit specifically so both get independent budgets checked by the transpile matrix. That's the pattern to follow whenever you want to compare two constructions of the same thing: two `CircuitSpec`s, not one circuit with a "which construction" parameter (budgets aren't parametrized, so a single circuit can't get two different budget checks).
 
 ---
 
