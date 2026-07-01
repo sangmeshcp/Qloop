@@ -49,6 +49,30 @@
       "mapped": true
     },
     {
+      "circuit": "color-832-ccz",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 2,
+      "two_qubit_gates": 0,
+      "mapped": true
+    },
+    {
+      "circuit": "color-832-ccz",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 812,
+      "two_qubit_gates": 353,
+      "mapped": true
+    },
+    {
+      "circuit": "color-832-ccz",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 930,
+      "two_qubit_gates": 243,
+      "mapped": true
+    },
+    {
       "circuit": "ghz",
       "target": "sim-ideal",
       "stage": "transpile",
