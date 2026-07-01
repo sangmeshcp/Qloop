@@ -193,6 +193,30 @@
       "mapped": true
     },
     {
+      "circuit": "magic-cultivation",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 4,
+      "two_qubit_gates": 1,
+      "mapped": true
+    },
+    {
+      "circuit": "magic-cultivation",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 17,
+      "two_qubit_gates": 2,
+      "mapped": true
+    },
+    {
+      "circuit": "magic-cultivation",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 11,
+      "two_qubit_gates": 2,
+      "mapped": true
+    },
+    {
       "circuit": "mermin-bell",
       "target": "sim-ideal",
       "stage": "transpile",
