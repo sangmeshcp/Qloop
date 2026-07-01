@@ -1,6 +1,30 @@
 {
   "entries": [
     {
+      "circuit": "bb-code-144",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 9,
+      "two_qubit_gates": 864,
+      "mapped": true
+    },
+    {
+      "circuit": "bb-code-144",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 874,
+      "two_qubit_gates": 17170,
+      "mapped": true
+    },
+    {
+      "circuit": "bb-code-144",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 9,
+      "two_qubit_gates": 864,
+      "mapped": true
+    },
+    {
       "circuit": "bb-code-72",
       "target": "sim-ideal",
       "stage": "transpile",
