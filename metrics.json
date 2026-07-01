@@ -73,6 +73,30 @@
       "mapped": true
     },
     {
+      "circuit": "dicke",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 34,
+      "two_qubit_gates": 0,
+      "mapped": true
+    },
+    {
+      "circuit": "dicke",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 2619,
+      "two_qubit_gates": 1437,
+      "mapped": true
+    },
+    {
+      "circuit": "dicke",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 1409,
+      "two_qubit_gates": 812,
+      "mapped": true
+    },
+    {
       "circuit": "ghz",
       "target": "sim-ideal",
       "stage": "transpile",
