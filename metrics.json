@@ -121,6 +121,30 @@
       "mapped": true
     },
     {
+      "circuit": "gqsp",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 1,
+      "two_qubit_gates": 0,
+      "mapped": true
+    },
+    {
+      "circuit": "gqsp",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 5,
+      "two_qubit_gates": 0,
+      "mapped": true
+    },
+    {
+      "circuit": "gqsp",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 3,
+      "two_qubit_gates": 0,
+      "mapped": true
+    },
+    {
       "circuit": "grover",
       "target": "sim-ideal",
       "stage": "transpile",
