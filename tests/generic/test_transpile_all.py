@@ -13,11 +13,11 @@ from __future__ import annotations
 
 import pytest
 
-from backends.noise import coupling_map_for
-from pipeline.transpile import assert_fits, transpile_for_target
 from qloop.backends import load_targets
+from qloop.backends.noise import coupling_map_for
 from qloop.core.registry import registry
 from qloop.pipeline.report import metrics
+from qloop.pipeline.transpile import assert_fits, transpile_for_target
 
 _ALL = registry.all()
 _TARGETS = load_targets()

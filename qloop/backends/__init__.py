@@ -6,12 +6,11 @@ from pathlib import Path
 
 import yaml
 
-# Resolve once relative to this file so it works regardless of CWD.
-_YAML_PATH = Path(__file__).resolve().parent.parent.parent / "backends" / "targets.yaml"
+_YAML_PATH = Path(__file__).resolve().parent / "targets.yaml"
 
 
 def load_targets() -> list[dict]:
-    """Load and return the list of target dicts from backends/targets.yaml."""
+    """Load and return the list of target dicts from targets.yaml."""
     with open(_YAML_PATH) as f:
         data = yaml.safe_load(f)
     return data["targets"]

@@ -16,10 +16,10 @@ from hypothesis import strategies as st
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import Operator
 
-from circuits.bell import bell_circuit
-from circuits.grover import grover_circuit
-from circuits.vqe import expectation, ground_state_energy
-from pipeline.run import run_ideal
+from qloop.circuits.bell import bell_circuit
+from qloop.circuits.grover import grover_circuit
+from qloop.circuits.vqe import expectation, ground_state_energy
+from qloop.pipeline.run import run_ideal
 
 # ── Normalization ──────────────────────────────────────────────────────────────
 
