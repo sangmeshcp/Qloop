@@ -193,6 +193,54 @@
       "mapped": true
     },
     {
+      "circuit": "qaoa-maxcut",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 17,
+      "two_qubit_gates": 18,
+      "mapped": true
+    },
+    {
+      "circuit": "qaoa-maxcut",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 48,
+      "two_qubit_gates": 26,
+      "mapped": true
+    },
+    {
+      "circuit": "qaoa-maxcut",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 20,
+      "two_qubit_gates": 18,
+      "mapped": true
+    },
+    {
+      "circuit": "qaoa-ring",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 20,
+      "two_qubit_gates": 12,
+      "mapped": true
+    },
+    {
+      "circuit": "qaoa-ring",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 41,
+      "two_qubit_gates": 21,
+      "mapped": true
+    },
+    {
+      "circuit": "qaoa-ring",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 23,
+      "two_qubit_gates": 12,
+      "mapped": true
+    },
+    {
       "circuit": "qft",
       "target": "sim-ideal",
       "stage": "transpile",
