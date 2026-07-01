@@ -265,6 +265,30 @@
       "mapped": true
     },
     {
+      "circuit": "quantum-volume",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 4,
+      "two_qubit_gates": 0,
+      "mapped": true
+    },
+    {
+      "circuit": "quantum-volume",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 54,
+      "two_qubit_gates": 24,
+      "mapped": true
+    },
+    {
+      "circuit": "quantum-volume",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 39,
+      "two_qubit_gates": 18,
+      "mapped": true
+    },
+    {
       "circuit": "tfim-trotter",
       "target": "sim-ideal",
       "stage": "transpile",

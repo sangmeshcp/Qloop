@@ -99,6 +99,29 @@ def real_nonnegative_amplitudes(atol: float = 1e-9) -> Invariant:
     )
 
 
+def heavy_output_probability_exceeds(threshold: float = 2.0 / 3.0) -> Invariant:
+    """
+    Aggregate probability of 'heavy' outcomes (those above the median
+    probability across all computational basis states) exceeds threshold.
+
+    This is the Quantum Volume success criterion (Cross et al.): a Haar-
+    random circuit's ideal output distribution should concentrate more than
+    2/3 of its probability mass on the above-median ("heavy") outcomes.
+    """
+
+    def check(circuit: QuantumCircuit, sv: Statevector) -> bool:
+        probs = sv.probabilities()
+        median = np.median(probs)
+        heavy_probability = float(np.sum(probs[probs > median]))
+        return heavy_probability > threshold
+
+    return Invariant(
+        name=f"heavy_output_probability_exceeds[{threshold:.3f}]",
+        check=check,
+        message=f"Heavy-output probability must exceed {threshold:.3f}",
+    )
+
+
 def hermitian_expectation(observable, expected: float, atol: float = 0.1) -> Invariant:
     """⟨ψ|H|ψ⟩ is within atol of expected (for variational circuits)."""
 
