@@ -17,6 +17,11 @@ from typing import Callable, ClassVar
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import Statevector
 
+# Qubit count above which Statevector simulation is intractable (2^n amplitudes).
+# Circuits over this size must rely on Stim (stim_program) or skip the
+# corresponding generic test rather than ever instantiating a Statevector.
+MAX_STATEVECTOR_QUBITS = 20
+
 # ── Invariant ──────────────────────────────────────────────────────────────────
 
 InvariantCheck = Callable[[QuantumCircuit, Statevector], bool]
@@ -99,6 +104,14 @@ class IntDomain(_Domain):
     min_val: int
     max_val: int
     kind: str = field(default="int", init=False)
+
+
+@dataclass
+class ChoiceDomain(_Domain):
+    """A parameter drawn from a fixed set of discrete options."""
+
+    options: tuple
+    kind: str = field(default="choice", init=False)
 
 
 class ParamSpace:
@@ -191,4 +204,28 @@ class CircuitSpec(ABC):
 
     def param_space(self) -> ParamSpace:
         """Declare parameters for hypothesis-based fuzzing. Empty → skip fuzzing."""
+        return ParamSpace.empty()
+
+    # ── Stim/Clifford tier ─────────────────────────────────────────────────────
+    #
+    # For Clifford circuits too large for statevector simulation (n_qubits >
+    # MAX_STATEVECTOR_QUBITS), declare stim_program() to route property
+    # verification through Stim's polynomial-time stabilizer simulator instead.
+    # This is the ONLY tier that may be exercised for such circuits — all
+    # statevector-based generic tests skip automatically above the qubit limit.
+
+    def stim_program(self, **params):
+        """
+        Return a stim.Circuit (with DETECTOR instructions) for Clifford
+        verification, or None to skip the Stim-backed property tier.
+        """
+        return None
+
+    def stim_param_space(self) -> ParamSpace:
+        """
+        Declare parameters for sweeping stim_program() (e.g. injected-error
+        location/basis). Independent from param_space(), which drives the
+        statevector-based property sweep. Empty → stim_program() called with
+        no arguments.
+        """
         return ParamSpace.empty()

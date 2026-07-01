@@ -1,6 +1,30 @@
 {
   "entries": [
     {
+      "circuit": "bb-code-72",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 9,
+      "two_qubit_gates": 432,
+      "mapped": true
+    },
+    {
+      "circuit": "bb-code-72",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 645,
+      "two_qubit_gates": 6910,
+      "mapped": true
+    },
+    {
+      "circuit": "bb-code-72",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 9,
+      "two_qubit_gates": 432,
+      "mapped": true
+    },
+    {
       "circuit": "bell",
       "target": "sim-ideal",
       "stage": "transpile",
@@ -73,6 +97,78 @@
       "mapped": true
     },
     {
+      "circuit": "mermin-bell",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 3,
+      "two_qubit_gates": 2,
+      "mapped": true
+    },
+    {
+      "circuit": "mermin-bell",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 5,
+      "two_qubit_gates": 2,
+      "mapped": true
+    },
+    {
+      "circuit": "mermin-bell",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 4,
+      "two_qubit_gates": 2,
+      "mapped": true
+    },
+    {
+      "circuit": "qft",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 7,
+      "two_qubit_gates": 0,
+      "mapped": true
+    },
+    {
+      "circuit": "qft",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 34,
+      "two_qubit_gates": 16,
+      "mapped": true
+    },
+    {
+      "circuit": "qft",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 21,
+      "two_qubit_gates": 12,
+      "mapped": true
+    },
+    {
+      "circuit": "tfim-trotter",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 31,
+      "two_qubit_gates": 24,
+      "mapped": true
+    },
+    {
+      "circuit": "tfim-trotter",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 47,
+      "two_qubit_gates": 24,
+      "mapped": true
+    },
+    {
+      "circuit": "tfim-trotter",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 39,
+      "two_qubit_gates": 24,
+      "mapped": true
+    },
+    {
       "circuit": "vqe",
       "target": "sim-ideal",
       "stage": "transpile",
@@ -84,7 +180,7 @@
       "circuit": "vqe",
       "target": "sim-noisy-heavyhex",
       "stage": "transpile",
-      "depth": 7,
+      "depth": 1,
       "two_qubit_gates": 1,
       "mapped": true
     },

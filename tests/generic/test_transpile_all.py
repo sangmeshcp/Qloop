@@ -32,7 +32,9 @@ _params = [
 @pytest.mark.parametrize("spec,target", _params)
 def test_transpile_fits_budget(spec, target, capsys):
     qc = spec.build()
-    coupling_map = coupling_map_for(target) if target.get("type") == "noisy" else None
+    coupling_map = (
+        coupling_map_for(target, n_qubits=qc.num_qubits) if target.get("type") == "noisy" else None
+    )
 
     transpiled, m = transpile_for_target(qc, target, coupling_map=coupling_map)
 

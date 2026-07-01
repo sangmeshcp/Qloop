@@ -16,6 +16,7 @@ from hypothesis import given, settings
 from qiskit.quantum_info import Statevector
 
 from qloop.core.registry import registry
+from qloop.core.spec import MAX_STATEVECTOR_QUBITS
 from qloop.core.strategies import strategies_for
 
 _ALL = registry.all()
@@ -30,9 +31,18 @@ def _run_checks(spec, **params):
         )
 
 
+def _skip_if_too_large_for_statevector(spec):
+    if spec.n_qubits > MAX_STATEVECTOR_QUBITS:
+        pytest.skip(
+            f"{spec.name}: n_qubits={spec.n_qubits} exceeds MAX_STATEVECTOR_QUBITS"
+            f"={MAX_STATEVECTOR_QUBITS}; use stim_program() for Clifford verification"
+        )
+
+
 @pytest.mark.parametrize("spec", _ALL, ids=[s.name for s in _ALL])
 def test_normalization(spec):
     """State vector probabilities must always sum to 1."""
+    _skip_if_too_large_for_statevector(spec)
     qc = spec.build()
     sv = Statevector(qc)
     import numpy as np
@@ -44,6 +54,7 @@ def test_normalization(spec):
 @pytest.mark.parametrize("spec", _ALL, ids=[s.name for s in _ALL])
 def test_invariants_default_params(spec):
     """All invariants must hold at default parameters."""
+    _skip_if_too_large_for_statevector(spec)
     qc = spec.build()
     sv = Statevector(qc)
     for inv in spec.invariants():
@@ -55,6 +66,7 @@ def test_invariants_default_params(spec):
 @pytest.mark.parametrize("spec", _ALL, ids=[s.name for s in _ALL])
 def test_invariants_param_sweep(spec):
     """Hypothesis sweeps param_space and checks invariants_for across all inputs."""
+    _skip_if_too_large_for_statevector(spec)
     ps = spec.param_space()
     if ps.is_empty():
         pytest.skip(f"{spec.name}: no param_space defined; use test_invariants_default_params")

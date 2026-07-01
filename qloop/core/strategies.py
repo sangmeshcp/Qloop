@@ -10,7 +10,7 @@ from __future__ import annotations
 from hypothesis import strategies as st
 from hypothesis.strategies import SearchStrategy
 
-from qloop.core.spec import BitstringDomain, FloatDomain, IntDomain, ParamSpace
+from qloop.core.spec import BitstringDomain, ChoiceDomain, FloatDomain, IntDomain, ParamSpace
 
 
 def strategies_for(space: ParamSpace) -> dict[str, SearchStrategy]:
@@ -34,6 +34,8 @@ def strategies_for(space: ParamSpace) -> dict[str, SearchStrategy]:
             )
         elif isinstance(domain, IntDomain):
             result[name] = st.integers(domain.min_val, domain.max_val)
+        elif isinstance(domain, ChoiceDomain):
+            result[name] = st.sampled_from(domain.options)
         else:
             raise ValueError(f"Unknown domain type for param '{name}': {type(domain)}")
     return result
