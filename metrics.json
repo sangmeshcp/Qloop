@@ -124,24 +124,48 @@
       "circuit": "ghz",
       "target": "sim-ideal",
       "stage": "transpile",
-      "depth": 3,
-      "two_qubit_gates": 2,
+      "depth": 12,
+      "two_qubit_gates": 11,
       "mapped": true
     },
     {
       "circuit": "ghz",
       "target": "sim-noisy-heavyhex",
       "stage": "transpile",
-      "depth": 5,
-      "two_qubit_gates": 2,
+      "depth": 14,
+      "two_qubit_gates": 11,
       "mapped": true
     },
     {
       "circuit": "ghz",
       "target": "sim-noisy-alltoall",
       "stage": "transpile",
-      "depth": 4,
-      "two_qubit_gates": 2,
+      "depth": 13,
+      "two_qubit_gates": 11,
+      "mapped": true
+    },
+    {
+      "circuit": "ghz-tree",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 5,
+      "two_qubit_gates": 11,
+      "mapped": true
+    },
+    {
+      "circuit": "ghz-tree",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 13,
+      "two_qubit_gates": 21,
+      "mapped": true
+    },
+    {
+      "circuit": "ghz-tree",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 6,
+      "two_qubit_gates": 11,
       "mapped": true
     },
     {

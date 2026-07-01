@@ -122,6 +122,27 @@ def heavy_output_probability_exceeds(threshold: float = 2.0 / 3.0) -> Invariant:
     )
 
 
+def zz_expectation_equals(i: int, j: int, expected: float = 1.0, atol: float = 1e-9) -> Invariant:
+    """<Z_i Z_j> equals expected (e.g. +1 for any pair on a GHZ state)."""
+
+    def check(circuit: QuantumCircuit, sv: Statevector) -> bool:
+        n = circuit.num_qubits
+        label = ["I"] * n
+        label[n - 1 - i] = "Z"
+        label[n - 1 - j] = "Z"
+        from qiskit.quantum_info import SparsePauliOp
+
+        op = SparsePauliOp("".join(label))
+        val = float(sv.expectation_value(op).real)
+        return abs(val - expected) < atol
+
+    return Invariant(
+        name=f"zz_expectation[{i},{j}]",
+        check=check,
+        message=f"<Z_{i} Z_{j}> must equal {expected}",
+    )
+
+
 def hermitian_expectation(observable, expected: float, atol: float = 0.1) -> Invariant:
     """⟨ψ|H|ψ⟩ is within atol of expected (for variational circuits)."""
 
