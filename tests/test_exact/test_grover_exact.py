@@ -3,8 +3,8 @@
 import numpy as np
 import pytest
 
-from circuits.grover import grover_circuit
-from pipeline.run import run_ideal
+from qloop.circuits.grover import grover_circuit
+from qloop.pipeline.run import run_ideal
 
 
 @pytest.mark.parametrize("marked", ["00", "01", "10", "11"])

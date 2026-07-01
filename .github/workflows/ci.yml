@@ -32,34 +32,38 @@ jobs:
       - name: Stage 1 — Lint (ruff)
         run: ruff check .
 
-      # Stage 2: Exact verification
-      - name: Stage 2 — Exact tests
-        run: pytest tests/test_exact/ -v
+      # Framework: registry + contract checks
+      - name: Framework — Registry and contract tests
+        run: pytest tests/test_framework/ -v
 
-      # Stage 3: Property tests
+      # Stage 2: Exact verification (seed circuits + generic registry sweep)
+      - name: Stage 2 — Exact tests
+        run: pytest tests/test_exact/ tests/generic/test_exact_all.py -v
+
+      # Stage 3: Property tests (seed circuits + generic registry sweep)
       - name: Stage 3 — Property tests (hypothesis)
-        run: pytest tests/test_properties/ -v
+        run: pytest tests/test_properties/ tests/generic/test_properties_all.py -v
+
+      # Stim/Clifford tier: large Clifford circuits verified via Stim instead
+      # of statevector simulation (e.g. the bivariate-bicycle QEC codes).
+      - name: Stage 3b — Clifford/Stim property tests
+        run: pytest tests/generic/test_stim_all.py -v
 
       # Stage 4: Transpilation matrix (the "build")
       - name: Stage 4 — Transpilation matrix
-        run: pytest tests/test_transpile/ -v -s
+        run: pytest tests/test_transpile/ tests/generic/test_transpile_all.py -v -s
 
       # Stage 5: Noisy simulation
       - name: Stage 5 — Noisy simulation tests
-        run: pytest tests/test_noisy/ -v
+        run: pytest tests/test_noisy/ tests/generic/test_noisy_all.py -v
 
-      # Emit transpile metrics as a CI artifact for observability
-      - name: Collect transpile metrics
-        if: always()
-        run: |
-          pytest tests/test_transpile/ -v -s 2>&1 | tee transpile_metrics.txt || true
-
-      - name: Upload transpile metrics
+      # Upload pipeline metrics JSON (written by conftest sessionfinish hook)
+      - name: Upload pipeline metrics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: transpile-metrics
-          path: transpile_metrics.txt
+          name: pipeline-metrics
+          path: metrics.json
           retention-days: 30
 
   # ── Stage 6: Hardware smoke — gated, nightly, never blocks merges ────────────
@@ -85,12 +89,12 @@ jobs:
       - name: Stage 6 — Hardware stub smoke test
         run: |
           python - <<'EOF'
-          import yaml, sys
-          from pipeline.run import submit_hardware
-          from circuits.bell import bell_circuit
+          import sys
+          from qloop.backends import load_targets
+          from qloop.circuits.bell import bell_circuit
+          from qloop.pipeline.run import submit_hardware
 
-          with open("backends/targets.yaml") as f:
-              targets = yaml.safe_load(f)["targets"]
+          targets = load_targets()
 
           for target in targets:
               try:

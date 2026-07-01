@@ -5,29 +5,19 @@ successfully and fit within the configured budget.
 This is the "build" step — a circuit that exceeds depth or two-qubit gate budget
 will cause these tests to fail, just as a compile error blocks a software build.
 
-Budget knob: budgets are defined in backends/targets.yaml under each target's
-'budget' key. Tighten them to catch circuits that over-decompose.
+Budget knob: budgets are defined in qloop/backends/targets.yaml under each
+target's 'budget' key. Tighten them to catch circuits that over-decompose.
 """
 
 from __future__ import annotations
 
-import os
-
 import pytest
-import yaml
 
-from backends.noise import coupling_map_for
-from circuits.bell import bell_circuit, bell_circuit_measured
-from circuits.grover import grover_circuit
-from pipeline.transpile import BudgetExceeded, assert_fits, transpile_for_target
-
-_YAML_PATH = os.path.join(os.path.dirname(__file__), "../../backends/targets.yaml")
-
-
-def _load_targets() -> list[dict]:
-    with open(_YAML_PATH) as f:
-        data = yaml.safe_load(f)
-    return data["targets"]
+from qloop.backends import load_targets
+from qloop.backends.noise import coupling_map_for
+from qloop.circuits.bell import bell_circuit, bell_circuit_measured
+from qloop.circuits.grover import grover_circuit
+from qloop.pipeline.transpile import BudgetExceeded, assert_fits, transpile_for_target
 
 
 def _named_circuits() -> list[tuple[str, object]]:
@@ -40,7 +30,7 @@ def _named_circuits() -> list[tuple[str, object]]:
     ]
 
 
-TARGETS = _load_targets()
+TARGETS = load_targets()
 CIRCUITS = _named_circuits()
 
 # Parametrize: (circuit_name, circuit, target)

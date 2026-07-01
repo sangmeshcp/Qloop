@@ -14,11 +14,11 @@ from __future__ import annotations
 import pytest
 from qiskit import QuantumCircuit
 
-from backends.noise import build_noise_model, coupling_map_for
-from pipeline.run import run_sampled
-from pipeline.transpile import transpile_for_target
 from qloop.backends import noisy_targets
+from qloop.backends.noise import build_noise_model, coupling_map_for
 from qloop.core.registry import registry
+from qloop.pipeline.run import run_sampled
+from qloop.pipeline.transpile import transpile_for_target
 
 _ALL = registry.all()
 _NOISY = noisy_targets()

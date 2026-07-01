@@ -7,9 +7,10 @@ Noise perturbs outcomes but the dominant correlation should survive at these err
 
 import pytest
 
-from backends.noise import build_noise_model, coupling_map_for
-from circuits.bell import bell_circuit_measured
-from pipeline.run import run_sampled
+from qloop.backends import load_targets
+from qloop.backends.noise import build_noise_model, coupling_map_for
+from qloop.circuits.bell import bell_circuit_measured
+from qloop.pipeline.run import run_sampled
 
 SHOTS = 4096
 # Tolerance band: allow 5 percentage points of deviation from ideal 0.5
@@ -17,14 +18,7 @@ TOLERANCE = 0.05
 
 
 def _load_noisy_target():
-    import os
-
-    import yaml
-
-    yaml_path = os.path.join(os.path.dirname(__file__), "../../backends/targets.yaml")
-    with open(yaml_path) as f:
-        data = yaml.safe_load(f)
-    return next(t for t in data["targets"] if t["name"] == "sim-noisy-heavyhex")
+    return next(t for t in load_targets() if t["name"] == "sim-noisy-heavyhex")
 
 
 @pytest.fixture(scope="module")

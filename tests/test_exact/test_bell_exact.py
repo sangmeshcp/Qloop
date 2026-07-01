@@ -2,8 +2,8 @@
 
 import numpy as np
 
-from circuits.bell import bell_circuit
-from pipeline.run import run_ideal
+from qloop.circuits.bell import bell_circuit
+from qloop.pipeline.run import run_ideal
 
 INV_SQRT2 = 1.0 / np.sqrt(2)
 # |Φ+⟩ = (|00⟩ + |11⟩)/√2 in computational basis ordering [00, 01, 10, 11]

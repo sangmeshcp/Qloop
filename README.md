@@ -1,8 +1,10 @@
 # Qloop
 
-A runnable quantum-circuit SDLC demo on classical simulators. Six pipeline stages, exact + noisy + property test tiers, transpilation-as-build-target, and a green CI pipeline. Hardware tier is stubbed and gated.
+A quantum-circuit SDLC framework on classical simulators. Six pipeline stages, a plugin registry for auto-discovered circuits, exact + noisy + property test tiers, transpilation-as-build-target, and a green CI pipeline. Hardware tier is stubbed and gated.
 
-**Stack:** Qiskit 2.4 + Qiskit Aer 0.17 · Python 3.11 · pytest + hypothesis · GitHub Actions
+**Stack:** Qiskit 2.4 + Qiskit Aer 0.17 · Stim · Python 3.11 · pytest + hypothesis · GitHub Actions
+
+All library code lives under `qloop/` — circuits, backends, pipeline helpers, and the plugin framework itself are a single package. Any circuit dropped as a single file in `qloop/circuits/` is automatically discovered and covered by all six pipeline stages. See [docs/ADDING_A_CIRCUIT.md](docs/ADDING_A_CIRCUIT.md).
 
 ---
 
@@ -11,10 +13,10 @@ A runnable quantum-circuit SDLC demo on classical simulators. Six pipeline stage
 | Stage | What | Where |
 |-------|------|--------|
 | 1 | **Lint & static** — ruff, circuit builds, qubit-budget check. Fast fail. | `ruff check .` |
-| 2 | **Exact verification** — statevector vs known-good, deterministic. | `tests/test_exact/` |
-| 3 | **Property tests** — invariants via Hypothesis, sweeps all inputs. | `tests/test_properties/` |
-| 4 | **Transpilation matrix** — compile per target, assert fits budget. | `tests/test_transpile/` |
-| 5 | **Noisy simulation** — noise models, statistical tolerance bands. | `tests/test_noisy/` |
+| 2 | **Exact verification** — statevector vs known-good, deterministic. | `tests/test_exact/` + `tests/generic/test_exact_all.py` |
+| 3 | **Property tests** — invariants via Hypothesis, sweeps all inputs; large Clifford circuits route through Stim instead of statevector. | `tests/test_properties/` + `tests/generic/test_properties_all.py` + `tests/generic/test_stim_all.py` |
+| 4 | **Transpilation matrix** — compile per target, assert fits budget. | `tests/test_transpile/` + `tests/generic/test_transpile_all.py` |
+| 5 | **Noisy simulation** — noise models, statistical tolerance bands. | `tests/test_noisy/` + `tests/generic/test_noisy_all.py` |
 | 6 | **Hardware smoke** — async, gated, stubbed. Never blocks merges. | CI `nightly-hardware` job |
 
 Stages 1–5 gate every PR. Stage 6 runs nightly (or on-demand via `workflow_dispatch`) and is marked `continue-on-error: true`.
@@ -34,7 +36,7 @@ Stages 1–5 gate every PR. Stage 6 runs nightly (or on-demand via `workflow_dis
 Stage 4 is the quantum equivalent of a compile step. Each circuit is transpiled to every backend target's native gate set and topology, then checked against a depth and two-qubit-gate budget:
 
 ```yaml
-# backends/targets.yaml — budget knob
+# qloop/backends/targets.yaml — budget knob
 budget:
   depth: 60          # max circuit depth after transpilation
   two_qubit_gates: 20  # max 2Q gate count (expensive, noisy)
@@ -69,10 +71,11 @@ pip install -r requirements.txt
 pytest
 
 # Run individual stages
-pytest tests/test_exact/        # Stage 2
-pytest tests/test_properties/   # Stage 3
-pytest tests/test_transpile/ -s # Stage 4 (prints metrics)
-pytest tests/test_noisy/        # Stage 5
+pytest tests/test_exact/ tests/generic/test_exact_all.py             # Stage 2
+pytest tests/test_properties/ tests/generic/test_properties_all.py   # Stage 3
+pytest tests/generic/test_stim_all.py                                # Stage 3b (Clifford/Stim)
+pytest tests/test_transpile/ tests/generic/test_transpile_all.py -s  # Stage 4 (prints metrics)
+pytest tests/test_noisy/ tests/generic/test_noisy_all.py             # Stage 5
 
 # Lint
 ruff check .
@@ -82,7 +85,7 @@ ruff check .
 
 ## Hardware Extension Point (Stage 6)
 
-`pipeline/run.py::submit_hardware` is the extension point for real hardware. It currently raises `NotImplementedError` with the async shape documented in its docstring:
+`qloop/pipeline/run.py::submit_hardware` is the extension point for real hardware. It currently raises `NotImplementedError` with the async shape documented in its docstring:
 
 ```
 1. SUBMIT  — POST circuit to provider API → receive job_id
@@ -110,13 +113,24 @@ Treat sim-green as a necessary but not sufficient condition for hardware success
 ## Repo Layout
 
 ```
-circuits/       Bell, Grover, VQE circuit definitions
-backends/       targets.yaml (topology/noise config) + noise model builder
-pipeline/       transpile + run helpers + hardware stub
+qloop/
+  core/           CircuitSpec contract, registry, invariants, param strategies
+  circuits/       Plugin modules: bell, grover, vqe, ghz, qft, tfim_trotter,
+                  mermin_bell, bb_code_72 (drop new ones here)
+  backends/       targets.yaml (topology/noise config) + noise model builder
+  pipeline/       transpile + run helpers + hardware stub + metrics collector
+
+templates/        circuit_template.py — copy-me starter for new plugins
+docs/             ADDING_A_CIRCUIT.md — authoring guide
+
 tests/
-  test_exact/       Stage 2: deterministic statevector checks
-  test_noisy/       Stage 5: statistical tolerance-band checks
-  test_properties/  Stage 3: Hypothesis invariants
-  test_transpile/   Stage 4: transpilation build matrix
-.github/workflows/  CI: pr-pipeline (1–5) + nightly-hardware (6)
+  test_framework/   Registry unit tests + contract tests (all specs)
+  generic/          Stage 2–5 parametrized over registry.all() × targets,
+                    plus the Stim/Clifford path for large circuits
+  test_exact/       Stage 2: original Bell + Grover deterministic checks
+  test_properties/  Stage 3: original Hypothesis invariants
+  test_transpile/   Stage 4: original transpilation build matrix
+  test_noisy/       Stage 5: original Bell noisy tolerance-band checks
+
+.github/workflows/  CI: pr-pipeline (stages 1–5) + nightly-hardware (stage 6)
 ```
