@@ -27,14 +27,14 @@ Stages 1–5 gate every PR. Stage 6 runs nightly (or on-demand via `workflow_dis
 
 ## Circuit Corpus
 
-17 circuits registered under `qloop/circuits/`, added in tiers that progressively stress different pipeline stages. Every circuit is auto-discovered — the tier structure below is a narrative for humans, not something the pipeline knows about.
+18 circuits registered under `qloop/circuits/`, added in tiers that progressively stress different pipeline stages. Every circuit is auto-discovered — the tier structure below is a narrative for humans, not something the pipeline knows about.
 
 | Tier | Circuits | What it stresses |
 |------|----------|-------------------|
 | 0 — seed benchmarks | `ghz`, `ghz-tree`, `qft`, `tfim-trotter`, `mermin-bell` | Airtight closed-form oracles; validates all six stages end to end |
 | 1 — Clifford QEC | `bb-code-72` | 144-qubit circuit, verified via Stim instead of statevector; heavy-hex vs all-to-all transpile blowup |
 | 2 — non-Clifford exact oracles | `color-832-ccz`, `dicke`, `gqsp` | Exact statevector/amplitude targets derived and verified from scratch (not memorized formulas) |
-| 3 — topology + statistics | `qaoa-maxcut`, `qaoa-ring`, `quantum-volume` | Same ansatz, different graph locality; the canonical noisy-tier statistical benchmark |
+| 3 — topology + statistics | `qaoa-maxcut`, `qaoa-ring`, `quantum-volume`, `mirror-benchmark` | Same ansatz, different graph locality; the canonical noisy-tier statistical benchmarks |
 | 4 — hard tier | `bb-code-144`, `magic-cultivation` | 288-qubit Stim-only circuit; postselected/conditional statistics |
 | (base) | `bell`, `grover`, `vqe` | The original pre-framework circuit set |
 

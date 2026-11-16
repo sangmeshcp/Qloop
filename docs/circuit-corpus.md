@@ -1,6 +1,6 @@
 # Circuit corpus reference
 
-All 17 circuits currently registered in `qloop/circuits/`. "Stages" lists which of the six pipeline stages actually run for that circuit (based on which optional `CircuitSpec` methods it implements) — everything not listed skips visibly rather than silently passing.
+All 18 circuits currently registered in `qloop/circuits/`. "Stages" lists which of the six pipeline stages actually run for that circuit (based on which optional `CircuitSpec` methods it implements) — everything not listed skips visibly rather than silently passing.
 
 ## Base circuits (pre-framework)
 
@@ -43,6 +43,7 @@ Airtight closed-form oracles, chosen to validate all six stages end to end befor
 | `qaoa-maxcut` | 6 | 2, 3, 4, 5 | Motivated by PHOENIX, [arXiv:2504.03529](https://arxiv.org/abs/2504.03529) — standard p=1 QAOA MaxCut on K₃,₃ (non-local graph) |
 | `qaoa-ring` | 6 | 2, 3, 4, 5 | Motivated by [arXiv:2509.17296](https://arxiv.org/abs/2509.17296) — same ansatz on a 6-cycle (local graph), contrasted against `qaoa-maxcut` |
 | `quantum-volume` | 4 | 3, 4, 5 | Cross et al., *Phys. Rev. A* 100, 032328 (2019) — fixed-seed random-circuit model; heavy-output criterion checked as an invariant, not against an external oracle |
+| `mirror-benchmark` | 6 | 2, 3, 4, 5 | Motivated by the QUOPS methodology, [arXiv:2609.12146](https://arxiv.org/pdf/2609.12146) (Sandia/Quantinuum/NVIDIA, Sep 2026) — implements the mirror-circuit construct (random layers + their exact inverse, giving an exact `\|0...0⟩` oracle for any width/depth/seed), not QUOPS' full capability-region/Q/Ω metric machinery |
 
 ## Tier 4 — hard tier
 

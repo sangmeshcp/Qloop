@@ -265,6 +265,30 @@
       "mapped": true
     },
     {
+      "circuit": "mirror-benchmark",
+      "target": "sim-ideal",
+      "stage": "transpile",
+      "depth": 4,
+      "two_qubit_gates": 6,
+      "mapped": true
+    },
+    {
+      "circuit": "mirror-benchmark",
+      "target": "sim-noisy-heavyhex",
+      "stage": "transpile",
+      "depth": 10,
+      "two_qubit_gates": 6,
+      "mapped": true
+    },
+    {
+      "circuit": "mirror-benchmark",
+      "target": "sim-noisy-alltoall",
+      "stage": "transpile",
+      "depth": 4,
+      "two_qubit_gates": 6,
+      "mapped": true
+    },
+    {
       "circuit": "qaoa-maxcut",
       "target": "sim-ideal",
       "stage": "transpile",
