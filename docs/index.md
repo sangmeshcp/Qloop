@@ -1,6 +1,6 @@
 # Qloop
 
-A quantum-circuit SDLC framework built on classical simulators: a plugin registry that auto-discovers circuits, six pipeline stages (lint → exact → property → transpile → noisy → hardware), and a 17-circuit corpus that exercises every stage.
+A quantum-circuit SDLC framework built on classical simulators: a plugin registry that auto-discovers circuits, six pipeline stages (lint → exact → property → transpile → noisy → hardware), and an 18-circuit corpus that exercises every stage.
 
 If you've never seen this repo before, read these in order:
 
@@ -10,7 +10,7 @@ If you've never seen this repo before, read these in order:
 4. **[Testing](testing.html)** — how the test suite is organized, and how to debug one circuit.
 5. **[Adding a circuit](adding-a-circuit.html)** — the only page you need to contribute a new circuit.
 6. **[Extending the framework](extending.html)** — changes that go deeper than "add a circuit": new invariants, new backends, new contract methods.
-7. **[Circuit corpus](circuit-corpus.html)** — reference table of all 17 registered circuits.
+7. **[Circuit corpus](circuit-corpus.html)** — reference table of all 18 registered circuits.
 
 ## The one-sentence pitch
 
